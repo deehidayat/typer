@@ -1,4 +1,9 @@
 var Word = Backbone.Model.extend({
+	defaults: {
+		highlight: 0,
+		y: 0,
+		speed: 1
+	},
 	move: function() {
 		this.set({y:this.get('y') + this.get('speed')});
 	}
@@ -89,12 +94,16 @@ var TyperView = Backbone.View.extend({
 					var word = words.at(i);
 					var typed_string = $(this).val();
 					var string = word.get('string');
+					var highlight = word.get('highlight');
 					if(string.toLowerCase().indexOf(typed_string.toLowerCase()) == 0) {
 						word.set({highlight:typed_string.length});
 						if(typed_string.length == string.length) {
 							$(this).val('');
 						}
 					} else {
+						if (highlight > 0) {
+							self.model.set({score: self.model.get('score') - (typed_string.length - highlight)});
+						}
 						word.set({highlight:0});
 					}
 				}
@@ -107,6 +116,7 @@ var TyperView = Backbone.View.extend({
 			button_play.hide();
 			button_stop.removeAttr('disabled');
 			button_pause.show();
+			text_input.focus();
 		});
 		var button_stop = $('<button id="btn-stop" type="button" class="btn btn-default"><i class="glyphicon glyphicon-stop"></i></button>').attr({ disabled: true }).on('click', function(){
 			self.model.stop();
@@ -118,7 +128,7 @@ var TyperView = Backbone.View.extend({
 			self.model.pause();
 			button_play.show();
 			button_stop.attr('disabled', true);
-			button_pause.hide();
+			button_pause.hide()
 		});
 
 		var button_container = $('<div class="btn-group" role="group" aria-label="..."></div>').append(button_play).append(button_pause).append(button_stop);
