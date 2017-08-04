@@ -5,7 +5,7 @@ var Word = Backbone.Model.extend({
 });
 
 var Words = Backbone.Collection.extend({
-	model:Word
+	model: Word
 });
 
 var WordView = Backbone.View.extend({
@@ -93,6 +93,8 @@ var TyperView = Backbone.View.extend({
 				}
 			});
 		
+		var text_score = self.text_score = $('<h2>');
+
 		$(this.el)
 			.append(wrapper
 				.append($('<form>')
@@ -102,7 +104,8 @@ var TyperView = Backbone.View.extend({
 					.submit(function() {
 						return false;
 					})
-					.append(text_input)));
+					.append(text_input))
+				.append(text_score));
 		
 		text_input.css({left:((wrapper.width() - text_input.width()) / 2) + 'px'});
 		text_input.focus();
@@ -113,6 +116,7 @@ var TyperView = Backbone.View.extend({
 	render: function() {
 		var model = this.model;
 		var words = model.get('words');
+		this.text_score.text(model.get('score'));
 		
 		for(var i = 0;i < words.length;i++) {
 			var word = words.at(i);
@@ -120,7 +124,7 @@ var TyperView = Backbone.View.extend({
 				var word_view_wrapper = $('<div>');
 				this.wrapper.append(word_view_wrapper);
 				word.set({
-					view:new WordView({
+					view: new WordView({
 						model: word,
 						el: word_view_wrapper
 					})
@@ -138,7 +142,8 @@ var Typer = Backbone.Model.extend({
 		min_distance_between_words:50,
 		words:new Words(),
 		min_speed:1,
-		max_speed:5
+		max_speed:5,
+		score: 0
 	},
 	
 	initialize: function() {
@@ -199,7 +204,9 @@ var Typer = Backbone.Model.extend({
 			}
 			
 			if(word.get('highlight') && word.get('string').length == word.get('highlight')) {
+				// Sukses
 				word.set({move_next_iteration:true});
+				this.set({score: this.get('score') + word.get('highlight') });
 			}
 		}
 		
