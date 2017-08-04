@@ -9,19 +9,18 @@ var Words = Backbone.Collection.extend({
 });
 
 var WordView = Backbone.View.extend({
+	
+	letter_width: 25,
+
 	initialize: function() {
 		$(this.el).css({position:'absolute'});
 		var string = this.model.get('string');
-		var letter_width = 25;
-		var word_width = string.length * letter_width;
-		if(this.model.get('x') + word_width > $(window).width()) {
-			this.model.set({x:$(window).width() - word_width});
-		}
+		this.fixingPosition();
 		for(var i = 0;i < string.length;i++) {
 			$(this.el)
 				.append($('<div>')
 					.css({
-						width:letter_width + 'px',
+						width: this.letter_width + 'px',
 						padding:'5px 2px',
 						'border-radius':'4px',
 						'background-color':'#fff',
@@ -35,6 +34,14 @@ var WordView = Backbone.View.extend({
 		this.listenTo(this.model, 'remove', this.remove);
 		
 		this.render();
+	},
+
+	fixingPosition: function() {
+		var string = this.model.get('string');
+		var word_width = string.length * this.letter_width;
+		if(this.model.get('x') + word_width > $(window).width()) {
+			this.model.set({x:$(window).width() - word_width});
+		}
 	},
 	
 	render:function() {
@@ -114,6 +121,14 @@ var TyperView = Backbone.View.extend({
 
 		$(window).on('resize', function(){
 			fixingTextInputPosition();
+			
+			var words = self.model.get('words');
+			for(var i = 0;i < words.length;i++) {
+				var word = words.at(i);
+				if(word.get('view')) {
+					word.get('view').fixingPosition();
+				}
+			}
 		});
 
 		fixingTextInputPosition();
