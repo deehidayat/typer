@@ -197,13 +197,11 @@ var Typer = Backbone.Model.extend({
 		min_distance_between_words:50,
 		words:new Words(),
 		min_speed:1,
-		max_speed:5,
+		max_speed:2,
 		score: 0
 	},
 
-	worker: null,
-
-	intervalId: null,
+	iterateId: null,
 	
 	initialize: function() {
 		new TyperView({
@@ -214,21 +212,11 @@ var Typer = Backbone.Model.extend({
 
 	start: function() {
 		var self = this;
-		if (window.Worker) {
-			self.worker = new Worker('iterate-worker.js');
-			self.worker.onmessage = function(event) {
-				self.iterate();
-			};
-		} else {
-			var animation_delay = 100;
-			if (self.intervalId) {
-				clearInterval(self.intervalId);
-			}
-			self.intervalId = setInterval(function() {
-				self.iterate();
-			}, animation_delay);
-		}
-
+		function animate(){
+			self.iterate();
+			self.iterateId = requestAnimationFrame(animate);
+		};
+		self.iterateId = requestAnimationFrame(animate);
 	},
 	
 	stop: function() {
@@ -245,11 +233,8 @@ var Typer = Backbone.Model.extend({
 	
 	pause: function() {
 		var self = this;
-		if (self.worker) {
-			self.worker.terminate();
-			self.worker = null;
-		} else if (self.intervalId) {
-			clearInterval(self.intervalId);
+		if (self.iterateId) {
+			cancelAnimationFrame(self.iterateId);
 		}
 	},
 	

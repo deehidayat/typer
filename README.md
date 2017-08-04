@@ -13,7 +13,7 @@ Pertanyaan:
 
 2. Aplikasi itu 'laggy'. Kenapa? Bagaimana cara membuat animasi lebih 'smooth'? 
     - Laggy karena menggunakan setInterval
-    - Mencoba Fixing dengan cara mengganti setInterval dengan Service Worker
+    - Mencoba Fixing dengan cara mengganti setInterval dengan [requestAnimationFrame](https://css-tricks.com/using-requestanimationframe/)
 
 3. Aplikasi itu tidak akan jalan di salah satu 3 browser populer (Chrome, Firefox, Internet Explorer)? Kenapa? Solusinya hanya menghapus satu character di code, character yang mana?    
     - Tidak jalan di Internet Explore 8 kebawah karena ada extra comma
