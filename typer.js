@@ -107,8 +107,16 @@ var TyperView = Backbone.View.extend({
 					.append(text_input))
 				.append(text_score));
 		
-		text_input.css({left:((wrapper.width() - text_input.width()) / 2) + 'px'});
-		text_input.focus();
+		function fixingTextInputPosition() {
+			text_input.css({left:((wrapper.width() - text_input.width()) / 2) + 'px'});
+			text_input.focus();
+		}
+
+		$(window).on('resize', function(){
+			fixingTextInputPosition();
+		});
+
+		fixingTextInputPosition();
 		
 		this.listenTo(this.model, 'change', this.render);
 	},
