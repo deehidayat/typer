@@ -102,6 +102,27 @@ var TyperView = Backbone.View.extend({
 		
 		var text_score = self.text_score = $('<h2>');
 
+		var button_play = $('<button id="btn-play" type="button" class="btn btn-default"><i class="glyphicon glyphicon-play"></i></button>').on('click', function(){
+			self.model.start();
+			button_play.hide();
+			button_stop.removeAttr('disabled');
+			button_pause.show();
+		});
+		var button_stop = $('<button id="btn-stop" type="button" class="btn btn-default"><i class="glyphicon glyphicon-stop"></i></button>').attr({ disabled: true }).on('click', function(){
+			self.model.stop();
+			button_play.show();
+			button_stop.attr('disabled', true);
+			button_pause.hide();
+		});
+		var button_pause = $('<button id="btn-pause" type="button" class="btn btn-default"><i class="glyphicon glyphicon-pause"></i></button>').hide().on('click', function(){
+			self.model.pause();
+			button_play.show();
+			button_stop.attr('disabled', true);
+			button_pause.hide();
+		});
+
+		var button_container = $('<div class="btn-group" role="group" aria-label="..."></div>').append(button_play).append(button_pause).append(button_stop);
+
 		$(this.el)
 			.append(wrapper
 				.append($('<form>')
@@ -112,6 +133,7 @@ var TyperView = Backbone.View.extend({
 						return false;
 					})
 					.append(text_input))
+				.append(button_container)
 				.append(text_score));
 		
 		function fixingTextInputPosition() {
@@ -168,6 +190,8 @@ var Typer = Backbone.Model.extend({
 		max_speed:5,
 		score: 0
 	},
+
+	intervalId: null,
 	
 	initialize: function() {
 		new TyperView({
@@ -179,9 +203,28 @@ var Typer = Backbone.Model.extend({
 	start: function() {
 		var animation_delay = 100;
 		var self = this;
-		setInterval(function() {
+		if (self.intervalId) {
+			clearInterval(self.intervalId);
+		}
+		self.intervalId = setInterval(function() {
 			self.iterate();
-		},animation_delay);
+		}, animation_delay);
+	},
+	
+	stop: function() {
+		var self = this;
+		clearInterval(self.intervalId);
+		var words = self.get('words');
+		words.forEach(function(word){
+			words.remove(word);
+		});
+		self.set({
+			score: 0
+		});
+	},
+	
+	pause: function() {
+		clearInterval(this.intervalId);
 	},
 	
 	iterate: function() {
